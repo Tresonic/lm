@@ -20,22 +20,22 @@ namespace fs = std::filesystem;
 
 bool isHidden(auto);
 
-void renewVectors(fs::path);
+void renewVectors(std::string);
 
 void changeDir(std::string);
 
-std::string getPerms(fs::path);
+std::string getPerms(std::string);
 
-std::string toHumanReadableSize(fs::path);
+std::string toHumanReadableSize(std::string);
 
-std::string getSize(fs::path);
+std::string getSize(std::string);
 
-void remove(fs::path);
+void remove(std::string);
 
-void copy(fs::path, fs::path);
+void copy(std::string, std::string);
 
-void copyList(std::vector<fs::path>, fs::path);
+void copyList(std::vector<std::string>, std::string);
 
-void move(fs::path, fs::path);
+void move(std::string, std::string);
 
-void moveList(std::vector<fs::path>, fs::path);
+void moveList(std::vector<std::string>, std::string);
