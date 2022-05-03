@@ -101,7 +101,7 @@ std::string getPerms(fs::path entry)
     return ret;
 }
 
-std::string toHumanReadableSize(long size) /* TODO: type to actual size type */
+std::string toHumanReadableSize(long size)
 {
     long ret;
     char chr;
@@ -210,11 +210,12 @@ int main()
 
     TEST_printallVecs();   
 
-    changeDir("/home/jakob/repos/own/");
-
     char buf[4096];
     std::cout << cwd(buf, sizeof(buf));
 
+    std::cout << fs::current_path() << "\n";
+    std::system("echo fuck yea && cd /");
+    std::system("go.sh");
     std::cout << fs::current_path() << "\n";
     return 0;
 }
