@@ -1,0 +1,7 @@
+<filesystem>:
+mkdir: https://en.cppreference.com/w/cpp/filesystem/create_directory
+get target symlink: https://en.cppreference.com/w/cpp/filesystem/read_symlink
+Microsoft about differences: https://docs.microsoft.com/en-us/cpp/standard-library/filesystem?view=msvc-170
+
+Change current dir: https://stackoverflow.com/questions/3485166/change-the-current-working-directory-in-c
+
