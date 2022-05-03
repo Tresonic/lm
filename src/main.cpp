@@ -1,73 +1,49 @@
-#include <iostream>
+#include "tui/tui.h"
 
-#include "ftxui/linux/component/component.hpp"
-#include "ftxui/linux/component/component_options.hpp"
-#include "ftxui/linux/component/screen_interactive.hpp"
-#include "ftxui/linux/component/captured_mouse.hpp"
-#include "ftxui/linux/dom/elements.hpp"
+int main() {
+  // box widget with {0x,0y} {100%x, 100%y} size
+  tui::box main_box({{0, 0}, {100, 100}});
+  main_box.setTitle("github.com/jmicjm/TUI");
+  main_box.setTitlePosition(tui::POSITION::END);
 
-using namespace ftxui;
-
-int selected = 0;
-
-std::vector<std::string> fileMenuEntries = {
-    "abc",
-    "def",
-};
-
-class FileMenu : public Menu {
-public:
-  FileMenu() {};
-  std::vector<int> itemcolors;
-  std::function<void()> on_mark = []() {};
-  std::function<void()> on_back = []() {};
-  std::function<void()> on_enter = []() {};
-
-  bool OnEvent(Event event) override {
-    if(event == Event::Special("l")) {
-  Element Render() {
-  std::vector<Element> elements;
-  bool is_focused = Focused();
-  for (size_t i = 0; i < fileMenuEntries.size(); ++i) {
-    auto style = (selected != int(i))
-                     ? normal_style
-                     : is_focused ? focused_style : selected_style;
-    auto focused = (selected != int(i)) ? nothing : is_focused ? focus : ftxui::select;
-    auto icon = (selected != int(i)) ? L"  " : L"> ";
-    if(itemcolors.size() == fileMenuEntries.size() && itemcolors[i] == 1) {
-      elements.push_back(text(icon + fileMenuEntries[i]) | color(Color::GreenLight) | style | focused);
-    } else if(itemcolors.size() == fileMenuEntries.size() && itemcolors[i] == 2) {
-      elements.push_back(text(icon + fileMenuEntries[i]) | bgcolor(Color::YellowLight) | style | focused);
-    } else if(itemcolors.size() == fileMenuEntries.size() && itemcolors[i] == 3) {
-      elements.push_back(text(icon + fileMenuEntries[i]) | bgcolor(Color::YellowLight) | color(Color::GreenLight) | style | focused);
-    } else {
-      elements.push_back(text(icon + fileMenuEntries[i]) | style | focused);
-    }
+  // text widget with {0x,0y} {50%x, 50%y} size
+  tui::text text({{0, 0}, {50, 50}});
+  //{0x,0y} {0%x,0%y} offset, origin{x,y} at center
+  text.setPositionInfo(
+      {{0, 0}, {0, 0}, {tui::POSITION::CENTER, tui::POSITION::CENTER}});
+  tui::symbol_string str;
+  for (char i = 33; i < 127; i++) {
+    str.push_back(i);
   }
-  return vbox(std::move(elements));
-      elements.push_back(text(icon + entries[i]) | bgcolor(Color::YellowLight) | style | focused);
-    } else if(itemcolors.size() == entries.size() && itemcolors[i] == 3) {
-      elements.push_back(text(icon + entries[i]) | bgcolor(Color::YellowLight) | color(Color::GreenLight) | style | focused);
-    } else {
-      elements.push_back(text(icon + entries[i]) | style | focused);
-    }
+  str << tui::COLOR::GREEN << "\ncolored text " << tui::COLOR::YELLOW
+      << u8"zażółć gęślą jaźń " << tui::ATTRIBUTE::UNDERSCORE
+      << tui::COLOR::CYAN << "underlined text";
+  str += u8"\nｆｕｌｌｗｉｄｔｈ-> 全屏宽度 全角 전체 넓이";
+  str +=
+      "\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris sed "
+      "libero nisi. "
+      "Etiam pellentesque ornare consequat. Sed congue nunc sit amet arcu "
+      "tempor rhoncus. "
+      "Nulla mattis erat justo. Nulla semper lorem quis massa laoreet "
+      "venenatis. "
+      "Mauris quis purus ut nulla finibus pharetra. Nulla non bibendum ipsum. "
+      "Vivamus sem lorem, tincidunt sed efficitur fermentum, porttitor sit "
+      "amet sem.";
+  text.setText(str);
+  // activated widget will handle user input, in full example
+  // activation/deactivation is handled by tui::navigation_group
+  text.activate();
+
+  tui::init();
+
+  while (!tui::input::isKeyPressed(tui::input::KEY::ESC)) {
+    tui::output::clear(); // clears buffer and resizes it to terminal size
+
+    tui::output::draw(main_box); // copies widget to buffer
+    tui::output::draw(text);
+
+    tui::output::display(); // displays buffer content
   }
-  return vbox(std::move(elements));
-}
 
-
-};
-
-int init()
-{
-    auto screen = ScreenInteractive::TerminalOutput();
-
-    MenuOption fileMenuOptions;
-    //fileMenuOptions.on_enter = screen.ExitLoopClosure();
-    fileMenuOptions.on_enter = [&] {
-        fileMenuEntries.push_back("NEW");
-    };
-    auto fileMenu = FileMenu(&fileMenuEntries, &selected, &fileMenuOptions);
-
-    screen.Loop(fileMenu);
+  return 0;
 }

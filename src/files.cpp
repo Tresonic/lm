@@ -1,7 +1,7 @@
 #include "files.hpp"
-#include <tgmath.h>
 #include <filesystem>
 #include <iostream>
+#include <tgmath.h>
 #include <vector>
 
 namespace fs = std::filesystem;
@@ -64,6 +64,7 @@ void renewVectors(std::string dirPath)
             }
         }
     }
+  }
 }
 
 /*
