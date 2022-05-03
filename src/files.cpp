@@ -6,14 +6,14 @@
 
 namespace fs = std::filesystem;
 
-fs::path currentDir;
+std::vector<std::string> hiddenDirs;
+std::vector<std::string> hiddenFiles;
+std::vector<std::string> dirs;
+std::vector<std::string> files;
 
-std::vector<fs::path> hiddenDirs;
-std::vector<fs::path> hiddenFiles;
-std::vector<fs::path> dirs;
-std::vector<fs::path> files;
+std::vector<std::string> marked;
 
-void TEST_outputFolderContent(fs::path path)
+void TEST_outputFolderContent(std::string path)
 {
     /* src: https://www.cppstories.com/2019/04/dir-iterate/ */
     for (const auto &entry : fs::directory_iterator(path)) {
@@ -42,7 +42,7 @@ bool isHidden(auto entry)
     }
 }
 
-void renewVectors(fs::path dirPath)
+void renewVectors(std::string dirPath)
 {
     hiddenDirs.clear();
     hiddenFiles.clear();
@@ -52,15 +52,15 @@ void renewVectors(fs::path dirPath)
     for (const auto &entry : fs::directory_iterator(dirPath)) {
         if (isHidden(entry)) {
             if (entry.is_directory()) {
-                hiddenDirs.push_back(entry);
+                hiddenDirs.push_back(entry.path().filename().string());
             } else if (entry.is_regular_file()) {
-                hiddenFiles.push_back(entry);
+                hiddenFiles.push_back(entry.path().filename().string());
             }
         } else {
             if (entry.is_directory()) {
-                dirs.push_back(entry);
+                dirs.push_back(entry.path().filename().string());
             } else if (entry.is_regular_file()) {
-                files.push_back(entry);
+                files.push_back(entry.path().filename().string());
             }
         }
     }
@@ -83,12 +83,12 @@ void changeDir(std::string newPath)
     }
 }
 
-std::string getPerms(fs::path entry)
+std::string getPerms(std::string entry)
 { /* source: https://en.cppreference.com/w/cpp/filesystem/perms */
-    fs::perms p = fs::status(entry.string()).permissions();
+    fs::perms p = fs::status(entry).permissions();
     std::string ret = "----------";
     int i = 0;
-    ret[i++] = (fs::is_directory(fs::status(entry.string())) ? 'd' : '.');
+    ret[i++] = (fs::is_directory(fs::status(entry) ? 'd' : '.');
     ret[i++] = ((p & fs::perms::owner_read) != fs::perms::none ? 'r' : '-');
     ret[i++] = ((p & fs::perms::owner_write) != fs::perms::none ? 'w' : '-');
     ret[i++] = ((p & fs::perms::owner_exec) != fs::perms::none ? 'x' : '-');
@@ -136,12 +136,12 @@ std::string toHumanReadableSize(long size)
     return std::to_string(ret) + chr;
 }
 
-std::string getSize(fs::path entry)
+std::string getSize(std::string entry)
 {
-    return (fs::is_directory(fs::status(entry.string())) ? "DIR" : toHumanReadableSize(fs::file_size(entry)));
+    return (fs::is_directory(fs::status(std::string)) ? "DIR" : toHumanReadableSize(fs::file_size(entry)));
 }
 
-void remove(fs::path entry)
+void remove(std::string entry)
 {
     /* TODO: move question to tui */
     std::cout << "Are you sure you want to delete the file/folder and all its subfolders?";
@@ -155,31 +155,31 @@ void remove(fs::path entry)
     }
 }
 
-void copy(fs::path from, fs::path to)
+void copy(std::string from, std::string to)
 {
     fs::copy(from, to);
 }
 
-void copyList(std::vector<fs::path> from, fs::path to)
+void copyList(std::vector<std::string> from, std::string to)
 {
     for (long unsigned i = 0; i < from.size(); i++) {
         fs::copy(from.at(i), to);
     }
 }
 
-void move(fs::path from, fs::path to)
+void move(std::string from, std::string to)
 {
     fs::rename(from, to);
 }
 
-void moveList(std::vector<fs::path> from, fs::path to)
+void moveList(std::vector<std::string> from, std::string to)
 {
     for (long unsigned i = 0; i < from.size(); i++) {
         fs::rename(from.at(i), to);
     }
 }
 
-void TODO_openFile(fs::path filePath)
+void TODO_openFile(std::string filePath)
 {
     /* https://stackoverflow.com/questions/38124415/using-a-filesystempath-how-do-you-open-a-file-in-a-cross-platform-way */
     //std::ifstream fileStream(filePath.string().c_str(), std::ios::binary);
