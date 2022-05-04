@@ -1,8 +1,8 @@
 #pragma once
 #define FILES_HPP
 
-#include <vector>
 #include <filesystem>
+#include <vector>
 
 namespace fs = std::filesystem;
 
@@ -18,7 +18,15 @@ namespace fs = std::filesystem;
 #define cd _chdir
 #endif
 
-bool isHidden(auto);
+struct DirectoryEntry {
+    std::string mName;
+    bool mDir;
+    bool mHidden;
+    long mSize;
+};
+
+std::vector<DirectoryEntry> getDirEntries(const std::string& path);
+bool isHidden(const fs::directory_entry&);
 
 void renewVectors(std::string);
 
