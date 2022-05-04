@@ -6,29 +6,16 @@
 
 namespace fs = std::filesystem;
 
-std::vector<std::string> hiddenDirs;
-std::vector<std::string> hiddenFiles;
-std::vector<std::string> dirs;
-std::vector<std::string> files;
-
-std::vector<std::string> marked;
-
-void TEST_outputFolderContent(std::string path)
+std::vector<DirectoryEntry> getDirEntries(const std::string& path)
 {
-    /* src: https://www.cppstories.com/2019/04/dir-iterate/ */
-    for (const auto &entry : fs::directory_iterator(path)) {
-        const auto filenameStr = entry.path().filename().string();
-        ;
-        if (entry.is_directory()) {
-            std::cout << "dir:  " << filenameStr << '\n';
-        } else if (entry.is_regular_file()) {
-            std::cout << "file: " << filenameStr << '\n';
-        } else
-            std::cout << "??    " << filenameStr << '\n';
+    std::vector<DirectoryEntry> dir_entries;
+    for (const auto& entry : fs::directory_iterator(path)) {
+        dir_entries.push_back({ entry.path().filename().string(), entry.is_directory(), isHidden(entry), 0 });
     }
+    return dir_entries;
 }
 
-bool isHidden(auto entry)
+bool isHidden(const fs::directory_entry& entry)
 {
     if (OS == 0) { /* Unix */
         if (entry.path().filename().string()[0] == '.') {
@@ -42,30 +29,29 @@ bool isHidden(auto entry)
     }
 }
 
-void renewVectors(std::string dirPath)
-{
-    hiddenDirs.clear();
-    hiddenFiles.clear();
-    dirs.clear();
-    files.clear();
-    
-    for (const auto &entry : fs::directory_iterator(dirPath)) {
-        if (isHidden(entry)) {
-            if (entry.is_directory()) {
-                hiddenDirs.push_back(entry.path().filename().string());
-            } else if (entry.is_regular_file()) {
-                hiddenFiles.push_back(entry.path().filename().string());
-            }
-        } else {
-            if (entry.is_directory()) {
-                dirs.push_back(entry.path().filename().string());
-            } else if (entry.is_regular_file()) {
-                files.push_back(entry.path().filename().string());
-            }
-        }
-    }
-  }
-}
+//void renewVectors(std::string dirPath)
+//{
+//hiddenDirs.clear();
+//hiddenFiles.clear();
+//dirs.clear();
+//files.clear();
+
+//for (const auto& entry : fs::directory_iterator(dirPath)) {
+//if (isHidden(entry)) {
+//if (entry.is_directory()) {
+//hiddenDirs.push_back(entry.path().filename().string());
+//} else if (entry.is_regular_file()) {
+//hiddenFiles.push_back(entry.path().filename().string());
+//}
+//} else {
+//if (entry.is_directory()) {
+//dirs.push_back(entry.path().filename().string());
+//} else if (entry.is_regular_file()) {
+//files.push_back(entry.path().filename().string());
+//}
+//}
+//}
+//}
 
 /*
  * normal cd with tests and Error outputs
@@ -89,7 +75,7 @@ std::string getPerms(std::string entry)
     fs::perms p = fs::status(entry).permissions();
     std::string ret = "----------";
     int i = 0;
-    ret[i++] = (fs::is_directory(fs::status(entry) ? 'd' : '.');
+    ret[i++] = (fs::is_directory(fs::status(entry)) ? 'd' : '.');
     ret[i++] = ((p & fs::perms::owner_read) != fs::perms::none ? 'r' : '-');
     ret[i++] = ((p & fs::perms::owner_write) != fs::perms::none ? 'w' : '-');
     ret[i++] = ((p & fs::perms::owner_exec) != fs::perms::none ? 'x' : '-');
@@ -139,7 +125,7 @@ std::string toHumanReadableSize(long size)
 
 std::string getSize(std::string entry)
 {
-    return (fs::is_directory(fs::status(std::string)) ? "DIR" : toHumanReadableSize(fs::file_size(entry)));
+    return (fs::is_directory(fs::status(entry)) ? "DIR" : toHumanReadableSize(fs::file_size(entry)));
 }
 
 void remove(std::string entry)
@@ -184,39 +170,4 @@ void TODO_openFile(std::string filePath)
 {
     /* https://stackoverflow.com/questions/38124415/using-a-filesystempath-how-do-you-open-a-file-in-a-cross-platform-way */
     //std::ifstream fileStream(filePath.string().c_str(), std::ios::binary);
-}
-
-void TEST_printVec(auto v)
-{
-    for (long unsigned i = 0; i < v.size(); i++) {
-        std::cout << getPerms(v.at(i)) << " " << v.at(i).filename().string() << " " << getSize(v.at(i)) << "\n"; // get filename
-    }
-}
-
-void TEST_printallVecs()
-{
-    std::cout << "Hidden Dirs:\n";
-    TEST_printVec(hiddenDirs);
-    std::cout << "Normal Dirs:\n";
-    TEST_printVec(dirs);
-    std::cout << "Hidden Files:\n";
-    TEST_printVec(hiddenFiles);
-    std::cout << "Normal Fies:\n";
-    TEST_printVec(files);
-}
-
-int main()
-{
-    renewVectors(fs::path("/home/jakob/Documents"));
-
-    TEST_printallVecs();   
-
-    char buf[4096];
-    std::cout << cwd(buf, sizeof(buf));
-
-    std::cout << fs::current_path() << "\n";
-    std::system("echo fuck yea && cd /");
-    std::system("go.sh");
-    std::cout << fs::current_path() << "\n";
-    return 0;
 }

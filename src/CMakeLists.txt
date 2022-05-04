@@ -1,6 +1,10 @@
 add_subdirectory(tui)
 
-add_executable(lm main.cpp)
+add_executable(lm 
+    main.cpp
+    dirlist.cpp
+    files.cpp
+)
 
 target_link_libraries(${PROJECT_NAME}
     sub::tui
