@@ -1,4 +1,4 @@
-#include "files.hpp"
+//#include "files.hpp"
 //#include "tui/tui.h"
 #include "dirlist.hpp"
 #include "tui.h"
@@ -30,8 +30,8 @@ int main()
     //// activation/deactivation is handled by tui::navigation_group
     //eList.activate();
 
-    Dirlist d("/home/tresonic/");
-
+    Dirlist d;
+    //Dirlist d2;
     tui::init();
 
     while (!tui::input::isKeyPressed('q')) {

@@ -20,6 +20,7 @@ static bool sortEntries(DirectoryEntry d1, DirectoryEntry d2);
 
 class Dirlist {
 public:
+    Dirlist();
     Dirlist(const std::string& path);
 
     void update(const std::string& path);

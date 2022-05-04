@@ -1,6 +1,11 @@
 #include "dirlist.hpp"
 
-const tui::list_appearance_a list_appearance { { "x", tui::COLOR::RED }, { "" }, { ">" } };
+const tui::list_appearance_a list_appearance { { "▓", tui::COLOR::RED }, { "" }, { ">" } };
+
+Dirlist::Dirlist()
+    : Dirlist(fs::current_path().string())
+{
+}
 
 Dirlist::Dirlist(const std::string& path)
     : mBasePath { path }
